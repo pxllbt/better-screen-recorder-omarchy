@@ -5,7 +5,7 @@
   "version": "1.2.1",
   "author": "pixllbeat",
   "license": "MIT",
-  "homepage": "https://github.com/pixllbeat/gpu-screen-recorder-omarchy",
+  "homepage": "https://github.com/pixllbeat/better-screen-recorder-omarchy",
   "description": "Omarchy bar widget for gpu-screen-recorder with dynamic GTK settings sync and GPU auto-detection.",
   "kinds": ["bar-widget"],
   "entryPoints": {

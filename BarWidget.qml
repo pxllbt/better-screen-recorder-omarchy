@@ -1,7 +1,7 @@
 // GPU Screen Recorder — Omarchy bar widget
 //
 // Author:  pixllbeat (https://github.com/pixllbeat)
-// Repo:    https://github.com/pixllbeat/gpu-screen-recorder-omarchy
+// Repo:    https://github.com/pixllbeat/better-screen-recorder-omarchy
 // License: MIT — see LICENSE. If you fork or reuse this file, please keep
 //          this header and credit the original author.
 //

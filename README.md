@@ -23,7 +23,7 @@ Created and maintained by [**pixllbeat**](https://github.com/pixllbeat). See [Cr
 ## Installation
 
 ```bash
-git clone https://github.com/pixllbeat/gpu-screen-recorder-omarchy.git
+git clone https://github.com/pixllbeat/better-screen-recorder-omarchy.git
 cd gpu-screen-recorder-omarchy
 ./install.sh
 ```
@@ -100,4 +100,4 @@ gpu-screen-recorder-omarchy/
 
 This plugin is © pixllbeat, licensed under [MIT](LICENSE). MIT is intentionally permissive — you're welcome to fork, modify, and reuse this code — but it requires keeping the copyright notice and license text with any copy or substantial portion of the software you redistribute (see `LICENSE` and the header comment in `BarWidget.qml`).
 
-If you build something from this project, a credit/link back to [github.com/pixllbeat/gpu-screen-recorder-omarchy](https://github.com/pixllbeat/gpu-screen-recorder-omarchy) in your README or about screen is appreciated (and, per the license, required if you keep substantial parts of the code).
+If you build something from this project, a credit/link back to [github.com/pixllbeat/better-screen-recorder-omarchy](https://github.com/pixllbeat/better-screen-recorder-omarchy) in your README or about screen is appreciated (and, per the license, required if you keep substantial parts of the code).
