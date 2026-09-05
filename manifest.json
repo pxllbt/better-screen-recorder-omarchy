@@ -1,10 +1,12 @@
 {
   "schemaVersion": 1,
-  "id": "thirdparty.gpu-screen-recorder",
+  "id": "io.github.pixllbeat.gpu-screen-recorder",
   "name": "GPU Screen Recorder",
-  "version": "1.1.0",
+  "version": "1.2.1",
   "author": "pixllbeat",
-  "description": "Omarchy bar widget for gpu-screen-recorder with dynamic GTK settings sync",
+  "license": "MIT",
+  "homepage": "https://github.com/pixllbeat/gpu-screen-recorder-omarchy",
+  "description": "Omarchy bar widget for gpu-screen-recorder with dynamic GTK settings sync and GPU auto-detection.",
   "kinds": ["bar-widget"],
   "entryPoints": {
     "barWidget": "BarWidget.qml"
