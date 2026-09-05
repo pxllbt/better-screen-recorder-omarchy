@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "thirdparty.gpu-screen-recorder",
+  "name": "GPU Screen Recorder",
+  "version": "1.1.0",
+  "author": "pixllbeat",
+  "description": "Omarchy bar widget for gpu-screen-recorder with dynamic GTK settings sync",
+  "kinds": ["bar-widget"],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "GPU Screen Recorder",
+    "category": "System",
+    "allowMultiple": false,
+    "defaultSection": "right",
+    "defaults": {
+      "gtkConfigPath": "~/.config/gpu-screen-recorder/config"
+    },
+    "schema": [
+      { "key": "gtkConfigPath", "type": "string", "label": "GTK config path" }
+    ]
+  }
+}
