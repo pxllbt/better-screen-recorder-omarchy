@@ -2,7 +2,7 @@
 
 Omarchy bar widget for [gpu-screen-recorder](https://git.dec05eba.com/gpu-screen-recorder/) with dynamic GTK settings sync and GPU auto-detection.
 
-Created and maintained by [**pixllbeat**](https://github.com/pixllbeat). See [Credits](#credits) below.
+Created and maintained by [**pixllbeat**](https://github.com/pxllbt). See [Credits](#credits) below.
 
 ## Features
 
