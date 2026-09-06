@@ -89,7 +89,7 @@ BarWidget {
 
   Process {
     id: sessionProc
-    command: ["pgrep", "--quiet", "-f", "gpu-screen-recorder( |$)"]
+    command: ["pgrep", "--quiet", "-f", "gpu-screen-recorder "]
     onExited: function(exitCode) {
       root.sessionActive = exitCode === 0
       if (!root.sessionActive) root.recording = false
@@ -242,7 +242,7 @@ BarWidget {
 
   function stopRecording() {
     if (!root.recording) return
-    Quickshell.execDetached(["bash", "-lc", "pkill -f 'gpu-screen-recorder( |$)' || true"])
+    Quickshell.execDetached(["bash", "-lc", "pkill -f 'gpu-screen-recorder ' || true"])
     root.recording = false
   }
 
