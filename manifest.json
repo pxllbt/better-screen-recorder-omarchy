@@ -1,24 +1,32 @@
 {
   "schemaVersion": 1,
-  "id": "io.github.pxllbt.better-menu",
-  "name": "Menu",
-  "version": "1.0.0",
+  "id": "io.github.pixllbeat.gpu-screen-recorder",
+  "name": "GPU Screen Recorder",
+  "version": "1.2.1",
   "author": "pixllbeat",
   "license": "MIT",
-  "description": "Custom Omarchy command menu with themed styling and remove-button for hiding static items.",
+  "homepage": "https://github.com/pixllbeat/better-screen-recorder-omarchy",
+  "description": "Omarchy bar widget for gpu-screen-recorder with dynamic GTK settings sync and GPU auto-detection.",
   "kinds": [
-    "menu",
     "bar-widget"
   ],
-  "keepLoaded": true,
   "entryPoints": {
-    "menu": "Menu.qml",
     "barWidget": "BarWidget.qml"
   },
   "barWidget": {
-    "displayName": "Menu",
-    "description": "Opens the Omarchy app menu",
-    "category": "Compositor",
-    "allowMultiple": false
+    "displayName": "GPU Screen Recorder",
+    "category": "System",
+    "allowMultiple": false,
+    "defaultSection": "right",
+    "defaults": {
+      "gtkConfigPath": "~/.config/gpu-screen-recorder/config"
+    },
+    "schema": [
+      {
+        "key": "gtkConfigPath",
+        "type": "string",
+        "label": "GTK config path"
+      }
+    ]
   }
 }
