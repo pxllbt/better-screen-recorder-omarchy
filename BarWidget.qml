@@ -89,10 +89,29 @@ BarWidget {
 
   Process {
     id: sessionProc
-    command: ["pgrep", "--quiet", "-f", "gpu-screen-recorder "]
+    command: ["pgrep", "--quiet", "-f", "gpu-screen-recorder( |$)"]
     onExited: function(exitCode) {
       root.sessionActive = exitCode === 0
       if (!root.sessionActive) root.recording = false
+    }
+  }
+
+  Process {
+    id: audioListProc
+    command: ["bash", "-lc", "gpu-screen-recorder --list-audio-devices | while IFS='|' read -r node name; do echo \"$name|$node\"; done"]
+    onNewOutput: function(output) {
+      var lines = String(output).split("\n")
+      root.audioDevices = {}
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i].trim()
+        if (!line) continue
+        var idx = line.indexOf("|")
+        if (idx > 0) {
+          var friendly = line.substring(0, idx).trim()
+          var real = line.substring(idx + 1).trim()
+          root.audioDevices[friendly] = real
+        }
+      }
     }
   }
 
@@ -182,9 +201,8 @@ BarWidget {
 
     var audioInput = getConfigValue("main.audio_input", "")
     if (audioInput) {
-      var rawDevice = audioInput.replace(/^device:/, "")
-      var device = rawDevice.toLowerCase().replace(/\s+/g, "_")
-      args.push("-a", device)
+      var device = resolveAudioDevice(audioInput)
+      if (device) args.push("-a", device)
     }
 
     var fps = getConfigValue("main.fps", "")
@@ -224,7 +242,7 @@ BarWidget {
 
   function stopRecording() {
     if (!root.recording) return
-    Quickshell.execDetached(["bash", "-lc", "pkill -f '^gpu-screen-recorder ' || true"])
+    Quickshell.execDetached(["bash", "-lc", "pkill -f 'gpu-screen-recorder( |$)' || true"])
     root.recording = false
   }
 
