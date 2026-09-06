@@ -6,7 +6,7 @@ OLD_PLUGIN_IDS=("thirdparty.gpu-screen-recorder")
 PLUGIN_DIR="$HOME/.config/omarchy/plugins/$PLUGIN_ID"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-echo "=== GPU Screen Recorder Omarchy Plugin Installer ==="
+echo "=== GPU Screen Recorder — Omarchy Plugin Installer ==="
 echo
 
 if [ ! -f /etc/arch-release ]; then
