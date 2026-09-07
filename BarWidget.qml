@@ -1,6 +1,6 @@
 // GPU Screen Recorder — Omarchy bar widget
 //
-// Author:  pixllbeat (https://github.com/pixllbeat)
+// Author:  pxllbt (https://github.com/pxllbt)
 // Repo:    https://github.com/pxllbt/better-screen-recorder-omarchy
 // License: MIT — see LICENSE. If you fork or reuse this file, please keep
 //          this header and credit the original author.
@@ -20,7 +20,7 @@ import qs.Ui
 
 BarWidget {
   id: root
-  moduleName: "io.github.pixllbeat.gpu-screen-recorder"
+  moduleName: "io.github.pxllbt.gpu-screen-recorder"
 
   property bool gtkAvailable: true
   property bool sessionActive: false

@@ -24,6 +24,13 @@ Omarchy bar widget for [gpu-screen-recorder](https://git.dec05eba.com/gpu-screen
 omarchy plugin add https://github.com/pxllbt/better-screen-recorder-omarchy.git --enable
 ```
 
+Installing via `omarchy plugin add` keeps the plugin as a git checkout, so you
+can update it (or enable automatic updates) with:
+
+```sh
+omarchy plugin update io.github.pxllbt.gpu-screen-recorder
+```
+
 ## Usage
 
 | Action | Result |

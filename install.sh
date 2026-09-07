@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PLUGIN_ID="io.github.pixllbeat.gpu-screen-recorder"
-OLD_PLUGIN_IDS=("thirdparty.gpu-screen-recorder")
+PLUGIN_ID="io.github.pxllbt.gpu-screen-recorder"
+OLD_PLUGIN_IDS=("thirdparty.gpu-screen-recorder" "io.github.pixllbeat.gpu-screen-recorder")
 PLUGIN_DIR="$HOME/.config/omarchy/plugins/$PLUGIN_ID"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
