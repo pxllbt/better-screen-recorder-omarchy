@@ -1,7 +1,7 @@
 // GPU Screen Recorder — Omarchy bar widget
 //
 // Author:  pixllbeat (https://github.com/pixllbeat)
-// Repo:    https://github.com/pixllbeat/better-screen-recorder-omarchy
+// Repo:    https://github.com/pxllbt/better-screen-recorder-omarchy
 // License: MIT — see LICENSE. If you fork or reuse this file, please keep
 //          this header and credit the original author.
 //
@@ -26,6 +26,7 @@ BarWidget {
   property bool sessionActive: false
   property bool recording: false
   property var gtkConfig: ({})
+  property var audioDevices: ({})
   property int gpuIndex: -1
   readonly property string gtkConfigPath: root.setting("gtkConfigPath", "~/.config/gpu-screen-recorder/config")
   readonly property string homeDir: Quickshell.env("HOME") || ""
@@ -89,29 +90,10 @@ BarWidget {
 
   Process {
     id: sessionProc
-    command: ["pgrep", "--quiet", "-f", "gpu-screen-recorder "]
+    command: ["bash", "-lc", "pgrep --quiet --full '/(gpu-screen-recorder|gpu-screen-recorder-gtk)( |$)'"]
     onExited: function(exitCode) {
       root.sessionActive = exitCode === 0
       if (!root.sessionActive) root.recording = false
-    }
-  }
-
-  Process {
-    id: audioListProc
-    command: ["bash", "-lc", "gpu-screen-recorder --list-audio-devices | while IFS='|' read -r node name; do echo \"$name|$node\"; done"]
-    onNewOutput: function(output) {
-      var lines = String(output).split("\n")
-      root.audioDevices = {}
-      for (var i = 0; i < lines.length; i++) {
-        var line = lines[i].trim()
-        if (!line) continue
-        var idx = line.indexOf("|")
-        if (idx > 0) {
-          var friendly = line.substring(0, idx).trim()
-          var real = line.substring(idx + 1).trim()
-          root.audioDevices[friendly] = real
-        }
-      }
     }
   }
 
@@ -135,10 +117,36 @@ BarWidget {
     }
   }
 
+  // Query the live list of audio devices. gpu-screen-recorder prints one
+  // "node|Friendly Name" per line; we map friendly name -> real node so
+  // buildCliArgs() can pass the exact id that the GTK config stores.
+  Process {
+    id: audioListProc
+    command: ["gpu-screen-recorder", "--list-audio-devices"]
+    stdout: StdioCollector {
+      onStreamFinished: function() {
+        var text = this.text || ""
+        var map = {}
+        var lines = text.split("\n")
+        for (var i = 0; i < lines.length; i++) {
+          var line = lines[i].trim()
+          if (!line) continue
+          var sep = line.indexOf("|")
+          if (sep <= 0) continue
+          var node = line.substring(0, sep).trim()
+          var name = line.substring(sep + 1).trim()
+          if (node && name) map[name] = node
+        }
+        root.audioDevices = map
+      }
+    }
+  }
+
   Component.onCompleted: {
     gtkCheckProc.running = true
     refreshGtkConfig()
     gpuDetectProc.running = true
+    audioListProc.running = true
   }
 
   Timer {
@@ -182,6 +190,23 @@ BarWidget {
     return root.gtkConfig.hasOwnProperty(key) ? root.gtkConfig[key] : fallback
   }
 
+  function resolveAudioDevice() {
+    var audioInput = getConfigValue("main.audio_input", "")
+    if (!audioInput) return ""
+    var friendly = String(audioInput).replace(/^device:/, "").trim()
+    if (!friendly) return ""
+
+    // The GTK config stores the friendly display name ("USB Condenser
+    // Microphone Mono"), but gpu-screen-recorder expects the real PipeWire
+    // node id ("alsa_input.usb-..."). Query the live device list and map the
+    // friendly name back to its node. root.audioDevices is populated by the
+    // audioListProc Process below.
+    if (root.audioDevices && root.audioDevices.hasOwnProperty(friendly)) {
+      return root.audioDevices[friendly]
+    }
+    return friendly
+  }
+
   function buildCliArgs() {
     var args = []
 
@@ -199,11 +224,8 @@ BarWidget {
     var quality = getConfigValue("main.quality", "")
     if (quality) args.push("-q", quality)
 
-    var audioInput = getConfigValue("main.audio_input", "")
-    if (audioInput) {
-      var device = resolveAudioDevice(audioInput)
-      if (device) args.push("-a", device)
-    }
+    var audioDevice = resolveAudioDevice()
+    if (audioDevice) args.push("-a", audioDevice)
 
     var fps = getConfigValue("main.fps", "")
     if (fps) args.push("-f", fps)
@@ -231,18 +253,14 @@ BarWidget {
     var outputPath = root.expandHome(saveDir) + "/" + stamp + ".mp4"
     var args = buildCliArgs()
     args.push("-o", outputPath)
-    var parts = ["gpu-screen-recorder"]
-    for (var i = 0; i < args.length; i++) {
-      parts.push(root.shellEscape(String(args[i])))
-    }
-    var cmd = parts.join(" ") + " >/dev/null 2>&1 &"
-    Quickshell.execDetached(["bash", "-lc", cmd])
+    Quickshell.execDetached(["gpu-screen-recorder"].concat(args))
     root.recording = true
   }
 
   function stopRecording() {
     if (!root.recording) return
-    Quickshell.execDetached(["bash", "-lc", "pkill -f 'gpu-screen-recorder ' || true"])
+    Quickshell.execDetached(["bash", "-lc",
+      "pkill --signal INT --full '/(gpu-screen-recorder|gpu-screen-recorder-gtk)( |$)'"])
     root.recording = false
   }
 
@@ -255,7 +273,7 @@ BarWidget {
     bar: root.bar
     active: root.recording
     dimmed: !root.gtkAvailable && !root.recording
-    text: root.externalSessionActive ? "\u25CF BUSY" : "\u25CF REC"
+    text: root.recording ? "\u25A0 REC" : (root.externalSessionActive ? "\u25CF BUSY" : "\u25CF REC")
     tooltipText: root.recording
       ? "Recording — click to stop"
       : (root.externalSessionActive
