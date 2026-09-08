@@ -261,15 +261,19 @@ BarWidget {
       args.push("-gpu", root.gpuIndex)
     }
 
-    // Only pass -w if the configured area option is a source this session
-    // actually exposes. On Wayland this is typically a monitor connector name
-    // (e.g. "HDMI-A-1"); on X11 it may be a window id the GTK config stored.
-    // Validating against the live capture list makes stale/mismatched values
-    // fall back to the recorder's fullscreen default instead of erroring out.
+    // gpu-screen-recorder REQUIRES -w, so we always emit one. Prefer the
+    // configured area option when it is a source this session actually
+    // exposes (a monitor connector name on Wayland, a window id on X11), plus
+    // the recorder's built-in keywords ("screen"/"monitor"/"region"/"portal").
+    // If the stored option is missing/stale/session-mismatched, fall back to
+    // the safe "screen" default so a recording never fails just because the
+    // GTK config didn't set a capture area.
     var areaOption = getConfigValue("main.record_area_option", "")
-    if (areaOption && root.captureSources && root.captureSources.hasOwnProperty(areaOption)) {
-      args.push("-w", areaOption)
-    }
+    var isKeyword = (areaOption === "screen" || areaOption === "monitor" ||
+                     areaOption === "region" || areaOption === "portal")
+    var areaValid = areaOption && (isKeyword ||
+      (root.captureSources && root.captureSources.hasOwnProperty(areaOption)))
+    args.push("-w", areaValid ? areaOption : "screen")
 
     var width = getConfigValue("main.record_area_width", "")
     var height = getConfigValue("main.record_area_height", "")

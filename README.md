@@ -47,7 +47,7 @@ It maps GTK keys to CLI flags:
 
 | GTK key | CLI flag |
 |---------|----------|
-| `main.record_area_option` | `-w` (only if it is a valid live capture source) |
+| `main.record_area_option` | `-w` (falls back to `screen` if not a valid live source) |
 | `main.record_area_width` + `main.record_area_height` | `-s WxH` |
 | `main.quality` | `-q` |
 | `main.audio_input` | `-a` |
@@ -65,7 +65,7 @@ GPU detection runs at startup. If multiple GPUs are found, it selects the first 
 The widget is designed to behave correctly on a range of Omarchy setups without configuration:
 
 - **GPU configs**: single-GPU systems omit `-gpu` (gpu-screen-recorder picks the default encoder); multi-GPU systems prefer a discrete NVIDIA/AMD/virtio GPU. Systems without a supported hardware encoder fall back to whatever encoder the installed `gpu-screen-recorder` supports.
-- **Sessions (Wayland & X11)**: the capture source is validated against the live `--list-capture-options` before `-w` is used. A stored option that is stale, renamed, or session-mismatched is ignored and the widget falls back to fullscreen rather than failing the recording.
+- **Sessions (Wayland & X11)**: the capture source is validated against the live `--list-capture-options` before `-w` is used. `-w` is always emitted — a stored option that is stale, renamed, or session-mismatched falls back to the recorder's `screen` default, so a recording never fails because the GTK config didn't set a capture area.
 - **Optional GTK GUI**: if `gpu-screen-recorder-gtk` isn't installed middle-click is disabled and the widget renders dimmed — recording from left-click still works. No AUR helper? Same graceful behaviour; only the settings GUI is unavailable.
 - **Own-probe isolation**: the widget never mistakes its own introspection calls (`--list-audio-devices`, `--list-capture-options`) for an external recording session, so it won't spuriously show "BUSY" on any setup.
 - **Audio handling**: if the configured audio device can't be resolved on the current system, `-a` is omitted rather than passed an invalid value.
