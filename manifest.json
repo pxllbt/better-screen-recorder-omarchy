@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "id": "io.github.pxllbt.gpu-screen-recorder",
-  "name": "GPU Screen Recorder",
+  "name": "Better Screen Recorder",
   "version": "1.3.4",
   "author": "pxllbt",
   "license": "MIT",
   "homepage": "https://github.com/pxllbt/better-screen-recorder-omarchy",
-  "description": "Omarchy bar widget for gpu-screen-recorder with dynamic GTK settings sync and GPU auto-detection.",
+  "description": "Omarchy bar widget for gpu-screen-recorder — one-click record/replay with GTK settings sync, GPU auto-detection, and Wayland/X11 support.",
   "kinds": [
     "bar-widget"
   ],
@@ -14,7 +14,7 @@
     "barWidget": "BarWidget.qml"
   },
   "barWidget": {
-    "displayName": "GPU Screen Recorder",
+    "displayName": "Better Screen Recorder",
     "category": "System",
     "allowMultiple": false,
     "defaultSection": "right",
