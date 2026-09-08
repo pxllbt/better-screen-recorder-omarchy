@@ -27,6 +27,7 @@ BarWidget {
   property bool recording: false
   property var gtkConfig: ({})
   property var audioDevices: ({})
+  property var captureSources: ({})
   property int gpuIndex: -1
   readonly property string gtkConfigPath: root.setting("gtkConfigPath", "~/.config/gpu-screen-recorder/config")
   readonly property string homeDir: Quickshell.env("HOME") || ""
@@ -88,9 +89,23 @@ BarWidget {
     }
   }
 
+  // Detects an external gpu-screen-recorder / gpu-screen-recorder-gtk session.
+  // The pgrep is wrapped so the widget's *own* introspection probes
+  // (--list-audio-devices, --list-capture-options, etc.) are never mistaken
+  // for an external recording session — otherwise recording could be
+  // spuriously disabled right at startup.
   Process {
     id: sessionProc
-    command: ["bash", "-lc", "pgrep --quiet --full '/(gpu-screen-recorder|gpu-screen-recorder-gtk)( |$)'"]
+    command: ["bash", "-lc", [
+      "while read -r pid; do",
+      "  cmd=$(tr '\\0' ' ' < \"/proc/$pid/cmdline\" 2>/dev/null)",
+      "  case \"$cmd\" in",
+      "    *--list-*|*--help*|*--version*) ;;",
+      "    *) exit 0 ;;",
+      "  esac",
+      "done < <(pgrep --full '/(gpu-screen-recorder|gpu-screen-recorder-gtk)')",
+      "exit 1"
+    ].join("\n")]
     onExited: function(exitCode) {
       root.sessionActive = exitCode === 0
       if (!root.sessionActive) root.recording = false
@@ -142,11 +157,39 @@ BarWidget {
     }
   }
 
+  // Enumerate the capture sources gpu-screen-recorder actually accepts for -w
+  // (e.g. "HDMI-A-1", the keywords "region"/"portal", or on X11 a window id).
+  // We validate record_area_option against this live list before passing it.
+  // This is what lets the widget behave correctly across Wayland and X11
+  // sessions: if the stored option is stale or refers to a source that is no
+  // longer present, we fall back to the recorder's fullscreen default instead
+  // of failing the recording with an invalid -w.
+  Process {
+    id: captureListProc
+    command: ["gpu-screen-recorder", "--list-capture-options"]
+    stdout: StdioCollector {
+      onStreamFinished: function() {
+        var text = this.text || ""
+        var sources = {}
+        var lines = text.split("\n")
+        for (var i = 0; i < lines.length; i++) {
+          var line = lines[i].trim()
+          if (!line || line.startsWith("[")) continue
+          var sep = line.indexOf("|")
+          var key = ((sep > 0 ? line.substring(0, sep) : line)).trim()
+          if (key) sources[key] = true
+        }
+        root.captureSources = sources
+      }
+    }
+  }
+
   Component.onCompleted: {
     gtkCheckProc.running = true
     refreshGtkConfig()
     gpuDetectProc.running = true
     audioListProc.running = true
+    captureListProc.running = true
   }
 
   Timer {
@@ -201,10 +244,14 @@ BarWidget {
     // node id ("alsa_input.usb-..."). Query the live device list and map the
     // friendly name back to its node. root.audioDevices is populated by the
     // audioListProc Process below.
+    //
+    // If the device can't be resolved (renamed, unplugged, or not present on
+    // this system) return "" so buildCliArgs() omits -a entirely rather than
+    // passing the friendly name, which gpu-screen-recorder rejects.
     if (root.audioDevices && root.audioDevices.hasOwnProperty(friendly)) {
       return root.audioDevices[friendly]
     }
-    return friendly
+    return ""
   }
 
   function buildCliArgs() {
@@ -214,8 +261,15 @@ BarWidget {
       args.push("-gpu", root.gpuIndex)
     }
 
-    var monitor = getConfigValue("main.record_area_option", "")
-    if (monitor) args.push("-w", monitor)
+    // Only pass -w if the configured area option is a source this session
+    // actually exposes. On Wayland this is typically a monitor connector name
+    // (e.g. "HDMI-A-1"); on X11 it may be a window id the GTK config stored.
+    // Validating against the live capture list makes stale/mismatched values
+    // fall back to the recorder's fullscreen default instead of erroring out.
+    var areaOption = getConfigValue("main.record_area_option", "")
+    if (areaOption && root.captureSources && root.captureSources.hasOwnProperty(areaOption)) {
+      args.push("-w", areaOption)
+    }
 
     var width = getConfigValue("main.record_area_width", "")
     var height = getConfigValue("main.record_area_height", "")
@@ -259,8 +313,11 @@ BarWidget {
 
   function stopRecording() {
     if (!root.recording) return
+    // Signal the recorder only. The anchored pattern (space or end-of-line
+    // after "gpu-screen-recorder") deliberately excludes the gpu-screen-recorder-gtk
+    // app, so stopping a recording doesn't also interrupt the settings GUI.
     Quickshell.execDetached(["bash", "-lc",
-      "pkill --signal INT --full '/(gpu-screen-recorder|gpu-screen-recorder-gtk)( |$)'"])
+      "pkill --signal INT --full '/(gpu-screen-recorder)( |$)'"])
     root.recording = false
   }
 
