@@ -203,6 +203,11 @@ BarWidget {
       // without a shell restart: gtkAvailable then comes back and the widget
       // un-dims + re-enables its middle-click settings button.
       if (!gtkCheckProc.running) gtkCheckProc.running = true
+      // Refresh the live audio-device and capture-source maps as well, so a
+      // USB mic plugged/unplugged (or a monitor added) mid-session is mapped
+      // without a shell restart. Guards keep in-flight probes from stacking.
+      if (!audioListProc.running) audioListProc.running = true
+      if (!captureListProc.running) captureListProc.running = true
     }
   }
 
@@ -280,11 +285,33 @@ BarWidget {
                      areaOption === "region" || areaOption === "portal")
     var areaValid = areaOption && (isKeyword ||
       (root.captureSources && root.captureSources.hasOwnProperty(areaOption)))
-    args.push("-w", areaValid ? areaOption : "screen")
 
     var width = getConfigValue("main.record_area_width", "")
     var height = getConfigValue("main.record_area_height", "")
-    if (width && height) args.push("-s", width + "x" + height)
+
+    // Region capture: gsr 6.x takes the geometry directly as -w (e.g.
+    // "-w 640x360+100+50"); the old -region flag is deprecated. Geometry
+    // strings are not part of --list-capture-options, so region mode bypasses
+    // the source-list validation below and never falls back to "screen" as
+    // long as a size is configured.
+    var regionGeometry = ""
+    if (areaOption === "region" && width && height) {
+      var offX = getConfigValue("main.record_area_offset_x", "0")
+      var offY = getConfigValue("main.record_area_offset_y", "0")
+      regionGeometry = width + "x" + height + "+" + offX + "+" + offY
+    }
+
+    if (regionGeometry) {
+      args.push("-w", regionGeometry)
+    } else if (areaValid) {
+      args.push("-w", areaOption)
+    } else {
+      args.push("-w", "screen")
+    }
+
+    // Only the resize -s survives here: regionGeometry carries its own
+    // dimensions via -w.
+    if (!regionGeometry && width && height) args.push("-s", width + "x" + height)
 
     var quality = getConfigValue("main.quality", "")
     if (quality) args.push("-q", quality)
