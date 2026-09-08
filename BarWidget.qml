@@ -196,7 +196,14 @@ BarWidget {
     interval: 5000
     running: true
     repeat: true
-    onTriggered: refreshGtkConfig()
+    onTriggered: function() {
+      refreshGtkConfig()
+      // Re-check for the GTK settings app too, so a gpu-screen-recorder-gtk
+      // install made after this widget loaded (e.g. via the AUR) is picked up
+      // without a shell restart: gtkAvailable then comes back and the widget
+      // un-dims + re-enables its middle-click settings button.
+      if (!gtkCheckProc.running) gtkCheckProc.running = true
+    }
   }
 
   Process {
