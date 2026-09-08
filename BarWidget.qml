@@ -103,7 +103,7 @@ BarWidget {
       "    *--list-*|*--help*|*--version*) ;;",
       "    *) exit 0 ;;",
       "  esac",
-      "done < <(pgrep --full '/(gpu-screen-recorder|gpu-screen-recorder-gtk)')",
+      "done < <(pgrep --full '(^|/)(gpu-screen-recorder|gpu-screen-recorder-gtk)')",
       "exit 1"
     ].join("\n")]
     onExited: function(exitCode) {
@@ -324,11 +324,14 @@ BarWidget {
 
   function stopRecording() {
     if (!root.recording) return
-    // Signal the recorder only. The anchored pattern (space or end-of-line
-    // after "gpu-screen-recorder") deliberately excludes the gpu-screen-recorder-gtk
-    // app, so stopping a recording doesn't also interrupt the settings GUI.
+    // Signal the recorder only. Anchoring on start-of-line or a slash — not a
+    // bare slash — covers both PATH-launched instances (cmdline "gpu-screen-recorder
+    // -w …") and absolute ones ("/usr/bin/gpu-screen-recorder …"). The trailing
+    // "( |$)" anchors after the name, so gpu-screen-recorder-gtk (which has a "-"
+    // right after the core name) is deliberately excluded and the settings GUI
+    // is never interrupted.
     Quickshell.execDetached(["bash", "-lc",
-      "pkill --signal INT --full '/(gpu-screen-recorder)( |$)'"])
+      "pkill --signal INT --full '(^|/)gpu-screen-recorder( |$)'"])
     root.recording = false
   }
 
