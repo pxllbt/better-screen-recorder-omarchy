@@ -4,6 +4,13 @@ All notable changes to this plugin are documented in this file.
 
 The version scheme follows the plugin manifest `version` field.
 
+## [1.3.5] — 2026-09-12
+
+### Changed
+- `install.sh` no longer auto-installs `gpu-screen-recorder-gtk` from the AUR. The GTK settings GUI is optional and must be installed manually if desired.
+- Hover tooltip simplified to "Click to start recording" — no longer references the GTK settings app.
+- README and manifest descriptions updated to reflect GTK as optional and not auto-installed.
+
 ## [1.3.4] — 2026-09-08
 
 ### Added

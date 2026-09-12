@@ -22,21 +22,15 @@ else
   echo "gpu-screen-recorder already installed."
 fi
 
-if ! command -v gpu-screen-recorder-gtk >/dev/null 2>&1; then
-  echo "Installing gpu-screen-recorder-gtk from AUR..."
-  if command -v yay >/dev/null 2>&1; then
-    yay -S --noconfirm gpu-screen-recorder-gtk
-  elif command -v paru >/dev/null 2>&1; then
-    paru -S --noconfirm gpu-screen-recorder-gtk
-  else
-    echo "Warning: No AUR helper found (yay or paru)."
-    echo "The recorder itself will still work; only the GTK settings GUI needs this:"
-    echo "  yay -S gpu-screen-recorder-gtk"
-    echo "or"
-    echo "  paru -S gpu-screen-recorder-gtk"
-  fi
-else
+if command -v gpu-screen-recorder-gtk >/dev/null 2>&1; then
   echo "gpu-screen-recorder-gtk already installed."
+else
+  echo "gpu-screen-recorder-gtk is optional — not auto-installing."
+  echo "To install it for a visual settings GUI, run one of:"
+  echo "  yay -S gpu-screen-recorder-gtk"
+  echo "or"
+  echo "  paru -S gpu-screen-recorder-gtk"
+  echo "The widget works fully without it (rendered dimmed, middle-click disabled)."
 fi
 
 echo

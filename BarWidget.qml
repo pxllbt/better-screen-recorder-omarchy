@@ -376,7 +376,7 @@ BarWidget {
       ? "Recording — click to stop"
       : (root.externalSessionActive
         ? "Another gpu-screen-recorder session is already running"
-        : (root.gtkAvailable ? "Click to start recording · middle-click for settings" : "Click to start recording (GTK settings app not found)"))
+        : "Click to start recording")
 
     onPressed: function(b) {
       if (!root.bar) return

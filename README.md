@@ -38,17 +38,17 @@ Installing via `omarchy plugin add` keeps the plugin as a git checkout, so you c
 omarchy plugin update io.github.pxllbt.gpu-screen-recorder
 ```
 
-The bundled `install.sh` performs the equivalent setup manually and also installs the runtime dependencies (`gpu-screen-recorder` from the official repos, `gpu-screen-recorder-gtk` from the AUR).
+The bundled `install.sh` performs the equivalent setup manually and installs the runtime dependency (`gpu-screen-recorder` from the official repos). The optional GTK settings GUI (`gpu-screen-recorder-gtk` from the AUR) is **not** auto-installed — it is detected and supported if you install it manually, but the widget is fully functional without it.
 
 ## Usage
 
 | Action | Result |
 |--------|--------|
 | Left-click the widget | Start / stop a recording |
-| Middle-click the widget | Open the GTK settings GUI *(requires `gpu-screen-recorder-gtk` installed)* |
+| Middle-click the widget | Open the GTK settings GUI *(only if `gpu-screen-recorder-gtk` is installed)* |
 | Change settings in the GTK GUI | Applied automatically on the next recording start |
 
-Recordings are saved to the directory configured in the GTK app (`record.save_directory`), named `YYYY-MM-DDTHH-MM-SS.mp4`.
+Recordings are saved to `~/Videos` (or the `record.save_directory` set in the GTK config), named `YYYY-MM-DDTHH-MM-SS.mp4`.
 
 ## Configuration
 
